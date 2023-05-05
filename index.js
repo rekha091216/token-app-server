@@ -7,7 +7,7 @@ const {ChatTokenBuilder} = require('agora-token')
 
 dotenv.config();
 const app = express();
-const PORT = process.env.PORT || 8080;
+const PORT = process.env.PORT || 3000;
 const APP_ID = 'b8e5a7e1a8524c3999359b0d30bee2bb';
 const APP_CERTIFICATE = '9271853c90e14e9d9f43cc8f74802541';
 
@@ -150,6 +150,45 @@ app.get('/register', async(req, res) => {
       'Authorization': "Bearer " + appToken,
     },
     body: JSON.stringify(body)
+  }).then(res => 
+    res.json()
+    ).then(json =>  {
+      res.status(200).send({
+        json
+      })}).
+    catch(error => console.log(error))
+})
+
+app.get('/addUser', async (req, res) => {
+  
+  const appToken = ChatTokenBuilder.buildAppToken(APP_ID, APP_CERTIFICATE, 36000);
+  const userName = req.query.userName.replace('%','');
+  
+  await fetch(`https://a61.chat.agora.io/61501494/948832/chatgroups/213795301556225/users/${userName}`, {
+    method: 'post',
+    headers: {
+      'content-type': 'application/json',
+      'Authorization': "Bearer " + appToken,
+    }
+  }).then(res => 
+    res.json()
+    ).then(json =>  {
+      res.status(200).send({
+        json
+      })}).
+    catch(error => console.log(error))
+})
+
+app.get('/fetchUsers', (req, res) => {
+  
+  const appToken = ChatTokenBuilder.buildAppToken(APP_ID, APP_CERTIFICATE, 36000);
+  
+  return  fetch("https://a61.chat.agora.io/61501494/948832/chatgroups/213795301556225/users/", {
+    method: 'get',
+    headers: {
+      'content-type': 'application/json',
+      'Authorization': "Bearer " + appToken,
+    }
   }).then(res => 
     res.json()
     ).then(json =>  {
