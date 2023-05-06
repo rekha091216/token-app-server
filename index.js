@@ -1,15 +1,40 @@
 const express = require('express');
 require('./')
 const cors = require('cors');
+const bodyParser = require('body-parser');
 const dotenv = require('dotenv');
 const {RtcTokenBuilder, RtcRole, RtmTokenBuilder, RtmRole} = require('agora-access-token');
 const {ChatTokenBuilder} = require('agora-token')
+const process = require('process');
+
+const customerKey = "f32be91f04934fe3967bb402d1920b81";
+
+const customerSecret = "384a689aa6a243e9aa932e710f6c42aa";
+
+const plainCredential = customerKey + ":" + customerSecret
+
+encodedCredential = Buffer.from(plainCredential).toString('base64')
+authorizationField = "Basic " + encodedCredential
+
+process.emitWarning('Running out of Storage');
+  
+// Event 'warning' 
+process.on('warning', (warning) => {
+  console.warn("warning stacktrace - " + warning.stack)
+});
 
 dotenv.config();
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3030;
 const APP_ID = 'b8e5a7e1a8524c3999359b0d30bee2bb';
 const APP_CERTIFICATE = '9271853c90e14e9d9f43cc8f74802541';
+
+app.use(bodyParser.urlencoded({
+  extended: true
+}));
+app.use(bodyParser.json());
+
+app.use(cors({ origin: 'http://localhost:3000' }));
 
 const nocache = (_, resp, next) => {
   resp.header('Cache-Control', 'private, no-cache, no-store, must-revalidate');
@@ -59,7 +84,6 @@ const generateRTCToken = (req, resp) => {
   if (req.params.tokentype === 'userAccount') {
     token = RtcTokenBuilder.buildTokenWithAccount(APP_ID, APP_CERTIFICATE, channelName, uid, role, privilegeExpireTime);
   } else if (req.params.tokentype === 'uid') {
-    console.log("DSDSDS")
     console.log(APP_ID, APP_CERTIFICATE, channelName, uid, role, privilegeExpireTime);
     token = RtcTokenBuilder.buildTokenWithUid(APP_ID, APP_CERTIFICATE, channelName, uid, role, privilegeExpireTime);
   } else {
@@ -136,6 +160,7 @@ const generateRTEToken = (req, resp) => {
   return resp.json({ 'rtcToken': rtcToken, 'rtmToken': rtmToken });
 }
 
+//Agora Chat APIs to register , adding user to the group, fetch users from the group
 app.get('/register', async(req, res) => {
   const appToken = ChatTokenBuilder.buildAppToken(APP_ID, APP_CERTIFICATE, 36000);
   const account = req.query.account.replace('%','');
@@ -196,6 +221,134 @@ app.get('/fetchUsers', (req, res) => {
         json
       })}).
     catch(error => console.log(error))
+})
+
+//Agora Cloud recording APIS to acquire, start and stops recording
+app.post('/acquire', (req, res) => {
+
+  const channelName = req.query.channelName.replace('%','');
+  const recordUid = req.query.recordUid.replace('%', '');
+  const channelToken = req.body.channelToken;
+  
+  var myHeaders = new Headers();
+  myHeaders.append("Content-Type", "application/json");
+  myHeaders.append("Authorization", authorizationField);
+
+  var raw = JSON.stringify({
+    "cname": channelName,
+    "uid": recordUid,
+    "clientRequest": {}
+  });
+
+  var requestOptions = {
+    method: 'POST',
+    headers: myHeaders,
+    body: raw,
+    redirect: 'follow'
+  };
+
+  return fetch(`https://api.agora.io/v1/apps/${APP_ID}/cloud_recording/acquire`, requestOptions)
+ .then(res => 
+    res.json()
+  ).then(json => {
+    res.status(200).send({
+      resourceId: json.resourceId
+    })
+  })
+})
+
+app.post('/start', (req, res) => {
+
+  const channelName = req.query.channelName.replace('%','');
+  const recordUid = req.query.recordUid.replace('%','');
+  const resourceId = req.query.resourceId.replace('%', '');
+  console.log(req.body)
+  console.log(req.body.channelToken)
+  const channelToken = req.body.channelToken;
+  const recordUidToken = req.body.recorderToken;
+  
+  var myHeaders = new Headers();
+  myHeaders.append("Content-Type", "application/json");
+  myHeaders.append("Accept", "application/json");
+  myHeaders.append("Authorization", authorizationField);
+
+  var raw = JSON.stringify({
+  "cname": channelName,
+  "uid": recordUid,
+    "clientRequest": {
+    "token": recordUidToken,
+    "recordingConfig": {
+      "streamTypes": 2,
+      "channelType": 0,
+      "streamMode": "standard",
+      "subscribeUidGroup": 0
+    },
+    "transcodingConfig": {
+      "width": 360,
+      "height": 640,
+      "fps": 30,
+      "bitrate": 1200
+    },
+    "storageConfig": {
+      "vendor": 1,
+      "region": 8,
+      "bucket": "agoratest",
+      "accessKey": "AKIATXUCJIEWB6FPCSNM",
+      "secretKey": "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"
+    }
+  }
+});
+  
+  var requestOptions = {
+  method: 'POST',
+  headers: myHeaders,
+  body: raw,
+  redirect: 'follow'
+  };
+  
+  return fetch(`https://api.agora.io/v1/apps/${APP_ID}/cloud_recording/resourceid/${resourceId}/mode/individual/start`, requestOptions)
+ .then(res => 
+    res.json()
+  ).then(json => {
+    console.log(json)
+    res.status(200).send({
+      sessionId: json.sid
+    })
+  })
+})
+
+app.post('/stop', (req, res) => {
+
+  const channelName = req.query.channelName.replace('%','');
+  const recordUid = req.query.recordUid.replace('%','');
+  const resourceId = req.query.resourceId.replace('%','');
+  const sid = req.query.sid.replace('%', '');
+  console.log(req)
+  
+  
+
+  var myHeaders = new Headers();
+  myHeaders.append("Content-Type", "application/json;charset=utf-8");
+  myHeaders.append("Authorization", authorizationField);
+
+  var raw = `{\n  \"cname\": \"${channelName}\",\n  \"uid\": \"${recordUid}\",\n  \"clientRequest\":{\n  }\n}`;
+
+  var requestOptions = {
+    method: 'POST',
+    headers: myHeaders,
+    body: raw,
+    redirect: 'follow'
+  };
+
+  return fetch(`https://api.agora.io/v1/apps/${APP_ID}/cloud_recording/resourceid/${resourceId}/sid/${sid}/mode/mix/stop`, requestOptions)
+    .then(res => 
+    res.json()
+  ).then(json => {
+    res.status(200).send({
+      fileName: json
+    })
+  })
+  
 })
 
 app.options('*', cors());
