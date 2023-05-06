@@ -32,8 +32,8 @@ const APP_CERTIFICATE = '9271853c90e14e9d9f43cc8f74802541';
 app.use(bodyParser.urlencoded({
   extended: true
 }));
-app.use(bodyParser.json());
 
+app.use(bodyParser.json());
 app.use(cors({ origin: 'http://localhost:3000' }));
 
 const nocache = (_, resp, next) => {
@@ -189,7 +189,7 @@ app.get('/addUser', async (req, res) => {
   const appToken = ChatTokenBuilder.buildAppToken(APP_ID, APP_CERTIFICATE, 36000);
   const userName = req.query.userName.replace('%','');
   
-  await fetch(`https://a61.chat.agora.io/61501494/948832/chatgroups/213795301556225/users/${userName}`, {
+  await fetch(`https://a61.chat.agora.io/61501494/948832/chatgroups/213900204244993/users/${userName}`, {
     method: 'post',
     headers: {
       'content-type': 'application/json',
@@ -208,7 +208,7 @@ app.get('/fetchUsers', (req, res) => {
   
   const appToken = ChatTokenBuilder.buildAppToken(APP_ID, APP_CERTIFICATE, 36000);
   
-  return  fetch("https://a61.chat.agora.io/61501494/948832/chatgroups/213795301556225/users/", {
+  return  fetch("https://a61.chat.agora.io/61501494/948832/chatgroups/213900204244993/users/", {
     method: 'get',
     headers: {
       'content-type': 'application/json',
@@ -225,10 +225,8 @@ app.get('/fetchUsers', (req, res) => {
 
 //Agora Cloud recording APIS to acquire, start and stops recording
 app.post('/acquire', (req, res) => {
-
   const channelName = req.query.channelName.replace('%','');
   const recordUid = req.query.recordUid.replace('%', '');
-  const channelToken = req.body.channelToken;
   
   var myHeaders = new Headers();
   myHeaders.append("Content-Type", "application/json");
@@ -260,11 +258,8 @@ app.post('/acquire', (req, res) => {
 app.post('/start', (req, res) => {
 
   const channelName = req.query.channelName.replace('%','');
-  const recordUid = req.query.recordUid.replace('%','');
-  const resourceId = req.query.resourceId.replace('%', '');
-  console.log(req.body)
-  console.log(req.body.channelToken)
-  const channelToken = req.body.channelToken;
+  const recordUid = req.query.recordUid.replace('%', '');
+  const resourceId = req.body.resourceId;
   const recordUidToken = req.body.recorderToken;
   
   var myHeaders = new Headers();
@@ -321,11 +316,8 @@ app.post('/stop', (req, res) => {
 
   const channelName = req.query.channelName.replace('%','');
   const recordUid = req.query.recordUid.replace('%','');
-  const resourceId = req.query.resourceId.replace('%','');
-  const sid = req.query.sid.replace('%', '');
-  console.log(req)
-  
-  
+  const resourceId = req.body.resourceId;
+  const sid = req.body.sessionId;
 
   var myHeaders = new Headers();
   myHeaders.append("Content-Type", "application/json;charset=utf-8");
@@ -340,10 +332,11 @@ app.post('/stop', (req, res) => {
     redirect: 'follow'
   };
 
-  return fetch(`https://api.agora.io/v1/apps/${APP_ID}/cloud_recording/resourceid/${resourceId}/sid/${sid}/mode/mix/stop`, requestOptions)
+  return fetch(`https://api.agora.io/v1/apps/${APP_ID}/cloud_recording/resourceid/${resourceId}/sid/${sid}/mode/individual/stop`, requestOptions)
     .then(res => 
     res.json()
   ).then(json => {
+    console.log(json)
     res.status(200).send({
       fileName: json
     })
