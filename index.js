@@ -204,8 +204,10 @@ app.get('/addUser', async (req, res) => {
     catch(error => console.log(error))
 })
 
-app.get('/fetchUsers', (req, res) => {
-  
+const fetchUsers =  (req, res) => {
+    
+  res.header('Access-Control-Allow-Origin', '*');
+
   const appToken = ChatTokenBuilder.buildAppToken(APP_ID, APP_CERTIFICATE, 36000);
   
   return  fetch("https://a61.chat.agora.io/61501494/948832/chatgroups/213900204244993/users/", {
@@ -349,7 +351,7 @@ app.get('/ping', nocache, ping)
 app.get('/rtc/:channel/:role/:tokentype/:uid', nocache , generateRTCToken);
 app.get('/rtm/:uid/', nocache , generateRTMToken);
 app.get('/rte/:channel/:role/:tokentype/:uid', nocache, generateRTEToken);
-
+app.get('/fetchUsers', nocache, fetchUsers)
 app.listen(PORT, () => {
   console.log(`Listening on port: ${PORT}`);
 });
