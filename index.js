@@ -162,7 +162,9 @@ const generateRTEToken = (req, resp) => {
 }
 
 //Agora Chat APIs to register , adding user to the group, fetch users from the group
-app.get('/register', async(req, res) => {
+app.get('/register', async (req, res) => {
+  res.header('Access-Control-Allow-Origin', '*');
+
   const appToken = ChatTokenBuilder.buildAppToken(APP_ID, APP_CERTIFICATE, 36000);
   const account = req.query.account.replace('%','');
   const password = req.query.password.replace('%','');
@@ -187,6 +189,8 @@ app.get('/register', async(req, res) => {
 
 app.get('/addUser', async (req, res) => {
   
+  res.header('Access-Control-Allow-Origin', '*');
+
   const appToken = ChatTokenBuilder.buildAppToken(APP_ID, APP_CERTIFICATE, 36000);
   const userName = req.query.userName.replace('%','');
   
@@ -228,6 +232,9 @@ const fetchUsers =  (req, res) => {
 
 //Agora Cloud recording APIS to acquire, start and stops recording
 app.post('/acquire', (req, res) => {
+
+  res.header('Access-Control-Allow-Origin', '*');
+
   const channelName = req.query.channelName.replace('%','');
   const recordUid = req.query.recordUid.replace('%', '');
   
@@ -259,6 +266,7 @@ app.post('/acquire', (req, res) => {
 })
 
 app.post('/start', (req, res) => {
+  res.header('Access-Control-Allow-Origin', '*');
 
   const channelName = req.query.channelName.replace('%','');
   const recordUid = req.query.recordUid.replace('%', '');
@@ -316,6 +324,7 @@ app.post('/start', (req, res) => {
 })
 
 app.post('/stop', (req, res) => {
+  res.header('Access-Control-Allow-Origin', '*');
 
   const channelName = req.query.channelName.replace('%','');
   const recordUid = req.query.recordUid.replace('%','');
