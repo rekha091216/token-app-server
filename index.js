@@ -231,7 +231,7 @@ const fetchUsers =  (req, res) => {
 }
 
 //Agora Cloud recording APIS to acquire, start and stops recording
-app.post('/acquire', (req, res) => {
+const acquireResource = (req, res) => {
 
   res.header('Access-Control-Allow-Origin', '*');
 
@@ -263,7 +263,7 @@ app.post('/acquire', (req, res) => {
       resourceId: json.resourceId
     })
   })
-})
+}
 
 app.post('/start', (req, res) => {
   res.header('Access-Control-Allow-Origin', '*');
@@ -362,6 +362,8 @@ app.get('/rtc/:channel/:role/:tokentype/:uid', nocache , generateRTCToken);
 app.get('/rtm/:uid/', nocache , generateRTMToken);
 app.get('/rte/:channel/:role/:tokentype/:uid', nocache, generateRTEToken);
 app.get('/fetchUsers', nocache, fetchUsers)
+app.post('/acquire', nocache, acquireResource);
+
 app.listen(PORT, () => {
   console.log(`Listening on port: ${PORT}`);
 });
