@@ -238,7 +238,7 @@ const acquireResource = (req, res) => {
   const channelName = req.query.channelName.replace('%','');
   const recordUid = req.query.recordUid.replace('%', '');
   
-  var myHeaders = new Headers();
+  var myHeaders = new fetch.Headers();
   myHeaders.append("Content-Type", "application/json");
   myHeaders.append("Authorization", authorizationField);
 
@@ -273,7 +273,7 @@ app.post('/start', (req, res) => {
   const resourceId = req.body.resourceId;
   const recordUidToken = req.body.recorderToken;
   
-  var myHeaders = new Headers();
+  var myHeaders = new fetch.Headers();
   myHeaders.append("Content-Type", "application/json");
   myHeaders.append("Accept", "application/json");
   myHeaders.append("Authorization", authorizationField);
@@ -331,7 +331,7 @@ app.post('/stop', (req, res) => {
   const resourceId = req.body.resourceId;
   const sid = req.body.sessionId;
 
-  var myHeaders = new Headers();
+  var myHeaders = new fetch.Headers();
   myHeaders.append("Content-Type", "application/json;charset=utf-8");
   myHeaders.append("Authorization", authorizationField);
 
