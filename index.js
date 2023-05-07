@@ -223,7 +223,7 @@ const fetchUsers =  (req, res) => {
         json
       })}).
     catch(error => console.log(error))
-})
+}
 
 //Agora Cloud recording APIS to acquire, start and stops recording
 app.post('/acquire', (req, res) => {
