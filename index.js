@@ -6,6 +6,7 @@ const dotenv = require('dotenv');
 const {RtcTokenBuilder, RtcRole, RtmTokenBuilder, RtmRole} = require('agora-access-token');
 const {ChatTokenBuilder} = require('agora-token')
 const process = require('process');
+const fetch = require('node-fetch');
 
 const customerKey = "f32be91f04934fe3967bb402d1920b81";
 
