@@ -9,6 +9,7 @@ const process = require('process');
 const fetch = require('node-fetch');
 
 const customerKey = "f32be91f04934fe3967bb402d1920b81";
+const GROUP_ID = 214037812019201;
 
 const customerSecret = "384a689aa6a243e9aa932e710f6c42aa";
 
@@ -194,7 +195,7 @@ app.get('/addUser', async (req, res) => {
   const appToken = ChatTokenBuilder.buildAppToken(APP_ID, APP_CERTIFICATE, 36000);
   const userName = req.query.userName.replace('%','');
   
-  await fetch(`https://a61.chat.agora.io/61501494/948832/chatgroups/213900204244993/users/${userName}`, {
+  await fetch(`https://a61.chat.agora.io/61501494/948832/chatgroups/${GROUP_ID}/users/${userName}`, {
     method: 'post',
     headers: {
       'content-type': 'application/json',
@@ -215,7 +216,7 @@ const fetchUsers =  (req, res) => {
 
   const appToken = ChatTokenBuilder.buildAppToken(APP_ID, APP_CERTIFICATE, 36000);
   
-  return  fetch("https://a61.chat.agora.io/61501494/948832/chatgroups/213900204244993/users/", {
+  return  fetch(`https://a61.chat.agora.io/61501494/948832/chatgroups/${GROUP_ID}/users/`, {
     method: 'get',
     headers: {
       'content-type': 'application/json',
